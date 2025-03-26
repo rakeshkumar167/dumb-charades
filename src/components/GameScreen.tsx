@@ -9,8 +9,8 @@ interface GameScreenProps {
   onBack: () => void;
 }
 
-const TOTAL_TIME = 180; // 3 minutes in seconds
-const WORD_TIMER = 10; // 10 seconds for next word
+const TOTAL_TIME = 15; // 3 minutes in seconds
+const WORD_TIMER = 5; // 5 seconds for next word
 
 export const GameScreen: React.FC<GameScreenProps> = ({ category, difficulty, onBack }) => {
   const [availableIndices, setAvailableIndices] = useState<number[]>(() => {
@@ -25,13 +25,20 @@ export const GameScreen: React.FC<GameScreenProps> = ({ category, difficulty, on
   const [gameTimer, setGameTimer] = useState(TOTAL_TIME);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
-  const timerEndAudioRef = useRef(new Audio(TIMER_END_SOUND));
+  const timerEndAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  const playSound = useCallback((audio: HTMLAudioElement) => {
-    audio.currentTime = 0;
-    audio.play().catch((error) => {
-      console.error('Audio playback failed:', error);
-    });
+  useEffect(() => {
+    // Initialize audio element
+    timerEndAudioRef.current = new Audio(TIMER_END_SOUND);
+  }, []);
+
+  const playSound = useCallback(() => {
+    if (timerEndAudioRef.current) {
+      timerEndAudioRef.current.currentTime = 0;
+      timerEndAudioRef.current.play().catch((error) => {
+        console.error('Audio playback failed:', error);
+      });
+    }
   }, []);
 
   function shuffle(array: number[]): number[] {
@@ -71,7 +78,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ category, difficulty, on
           if (prev === 1) {
             setIsTimeUp(true);
             setIsShaking(true);
-            playSound(timerEndAudioRef.current);
+            playSound();
             return 0;
           }
           return prev - 1;
@@ -149,11 +156,6 @@ export const GameScreen: React.FC<GameScreenProps> = ({ category, difficulty, on
               </h2>
               
               <div className="mt-auto mb-6">
-                {!canProceed && !isTimeUp && (
-                  <div className="text-xl font-semibold text-purple-400">
-                    ⏳ {wordTimer} seconds
-                  </div>
-                )}
                 {isTimeUp && (
                   <div className="text-xl font-semibold text-red-500">
                     Time's Up! 🔔
