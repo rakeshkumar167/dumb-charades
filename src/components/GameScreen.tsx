@@ -9,7 +9,7 @@ interface GameScreenProps {
   onBack: () => void;
 }
 
-const TOTAL_TIME = 15; // 3 minutes in seconds
+const TOTAL_TIME = 180; // 3 minutes in seconds
 const WORD_TIMER = 10; // 10 seconds for next word
 
 export const GameScreen: React.FC<GameScreenProps> = ({ category, difficulty, onBack }) => {
